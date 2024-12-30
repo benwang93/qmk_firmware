@@ -80,14 +80,37 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 // bool caps = host_keyboard_led_state().caps_lock;
 // rgb_matrix_set_color(164, caps_state, caps_state, caps_state); // from drop shift v2.c
 
-// Copied from `rgb_matrix.md`'s Indicator Examples for Caps lock indicator
+// Sets the entire keyboard red
+void set_full_keyboard_red(uint8_t led_min, uint8_t led_max) {
+    for (uint8_t i = led_min; i < led_max; i++) {
+        if (g_led_config.flags[i] & LED_FLAG_KEYLIGHT) {
+            rgb_matrix_set_color(i, RGB_RED);
+        }
+    }
+}
+// Sets the caps lock key red
+void set_caps_lock_red(uint8_t led_min, uint8_t led_max) {
+    // From v2.c
+    rgb_matrix_set_color(3, RGB_RED);
+}
+
+// Override RGB LEDs based on keyboard state
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     if (host_keyboard_led_state().caps_lock) {
-        for (uint8_t i = led_min; i < led_max; i++) {
-            if (g_led_config.flags[i] & LED_FLAG_KEYLIGHT) {
-                rgb_matrix_set_color(i, RGB_RED);
-            }
-        }
+        set_caps_lock_red(led_min, led_max);
+        // set_full_keyboard_red(led_min, led_max);
     }
     return false;
 }
+
+// Copied from `rgb_matrix.md`'s Indicator Examples for Caps lock indicator
+// bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+//     if (host_keyboard_led_state().caps_lock) {
+//         for (uint8_t i = led_min; i < led_max; i++) {
+//             if (g_led_config.flags[i] & LED_FLAG_KEYLIGHT) {
+//                 rgb_matrix_set_color(i, RGB_RED);
+//             }
+//         }
+//     }
+//     return false;
+// }
