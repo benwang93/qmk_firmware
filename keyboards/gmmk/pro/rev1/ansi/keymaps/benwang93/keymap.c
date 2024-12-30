@@ -82,7 +82,7 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 // bool caps = host_keyboard_led_state().caps_lock;
 // rgb_matrix_set_color(164, caps_state, caps_state, caps_state); // from drop shift v2.c
 
-// Sets the entire keyboard red
+// Sets the entire keyboard color, while preserving the lighting on the sides of the keyboard
 void set_full_keyboard(uint8_t led_min, uint8_t led_max, uint8_t r, uint8_t g, uint8_t b) {
     for (uint8_t i = led_min; i < led_max; i++) {
         if (g_led_config.flags[i] & LED_FLAG_KEYLIGHT) {
@@ -91,31 +91,33 @@ void set_full_keyboard(uint8_t led_min, uint8_t led_max, uint8_t r, uint8_t g, u
     }
 }
 
-// Sets the caps lock key red
+// Sets the caps lock key color
 void set_caps_lock_only(uint8_t led_min, uint8_t led_max, uint8_t r, uint8_t g, uint8_t b) {
     // From v2.c
     rgb_matrix_set_color(3, r, g, b); // Caps lock
 }
 
-// Sets the caps lock key red
+// Sets the color of all non-numpad keys, while preserving the lighting on the sides of the keyboard
 void set_numpad_layer(uint8_t led_min, uint8_t led_max, uint8_t r, uint8_t g, uint8_t b) {
     // From v2.c
     for (uint8_t i = led_min; i < led_max; i++) {
-        switch (i) {
-            case 36: // Y
-            case 41: // U
-            case 46: // I
-            case 37: // H
-            case 42: // J
-            case 47: // K
-            case 38: // N
-            case 43: // M
-            case 48: // ,
-                // Do not override the numpad keys
-                break;
-            default:
-                // Override the non-numpad keys
-                rgb_matrix_set_color(i, r, g, b);
+        if (g_led_config.flags[i] & LED_FLAG_KEYLIGHT) {
+            switch (i) {
+                case 36: // Y
+                case 41: // U
+                case 46: // I
+                case 37: // H
+                case 42: // J
+                case 47: // K
+                case 38: // N
+                case 43: // M
+                case 48: // ,
+                    // Do not override the numpad keys
+                    break;
+                default:
+                    // Override the non-numpad keys
+                    rgb_matrix_set_color(i, r, g, b);
+            }
         }
     }
 }
