@@ -83,25 +83,57 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 // rgb_matrix_set_color(164, caps_state, caps_state, caps_state); // from drop shift v2.c
 
 // Sets the entire keyboard red
-void set_full_keyboard_red(uint8_t led_min, uint8_t led_max) {
+void set_full_keyboard(uint8_t led_min, uint8_t led_max, uint8_t r, uint8_t g, uint8_t b) {
     for (uint8_t i = led_min; i < led_max; i++) {
         if (g_led_config.flags[i] & LED_FLAG_KEYLIGHT) {
-            rgb_matrix_set_color(i, RGB_RED);
+            rgb_matrix_set_color(i, r, g, b);
         }
     }
 }
+
 // Sets the caps lock key red
-void set_caps_lock_red(uint8_t led_min, uint8_t led_max) {
+void set_caps_lock_only(uint8_t led_min, uint8_t led_max, uint8_t r, uint8_t g, uint8_t b) {
     // From v2.c
-    rgb_matrix_set_color(3, RGB_RED);
+    rgb_matrix_set_color(3, r, g, b); // Caps lock
+}
+
+// Sets the caps lock key red
+void set_numpad_layer(uint8_t led_min, uint8_t led_max, uint8_t r, uint8_t g, uint8_t b) {
+    // From v2.c
+    rgb_matrix_set_color(36, r, g, b); // Y
+    rgb_matrix_set_color(41, r, g, b); // U
+    rgb_matrix_set_color(46, r, g, b); // I
+    rgb_matrix_set_color(37, r, g, b); // H
+    rgb_matrix_set_color(42, r, g, b); // J
+    rgb_matrix_set_color(47, r, g, b); // K
+    rgb_matrix_set_color(38, r, g, b); // N
+    rgb_matrix_set_color(43, r, g, b); // M
+    rgb_matrix_set_color(48, r, g, b); // ,
 }
 
 // Override RGB LEDs based on keyboard state
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     if (host_keyboard_led_state().caps_lock) {
-        // set_caps_lock_red(led_min, led_max);
-        set_full_keyboard_red(led_min, led_max);
+        // Disable entire keyboard
+        set_full_keyboard(led_min, led_max, RGB_BLACK);
+
+        // Only illuminate caps lock
+        set_caps_lock_only(led_min, led_max, RGB_RED);
+
+        // Set entire keyboard red
+        // set_full_keyboard(led_min, led_max, RGB_RED);
     }
+
+    // Check if we're on the numpad layer (layer 2)
+    uint8_t current_layer = get_highest_layer(layer_state);
+    if (current_layer == 2) {
+        // Disable entire keyboard
+        set_full_keyboard(led_min, led_max, RGB_BLACK);
+
+        // Only illuminate numpad keys
+        set_numpad_layer(led_min, led_max, RGB_RED);
+    }
+
     return false;
 }
 
